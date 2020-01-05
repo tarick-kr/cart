@@ -90,8 +90,7 @@ export default {
       editedParamValid: [],
       editedParamCount: 0,
       editedQuantity: '',
-      editedQuantityValid: true,
-      form: {}
+      editedQuantityValid: true
     }
   },
   components: {
