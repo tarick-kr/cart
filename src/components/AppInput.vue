@@ -61,13 +61,6 @@ export default {
       } else {
         return this.patternValidQuantity.test(String(this.data)) && String(this.data) > 0 && String(this.data) <= this.maxQuantity
       }
-    },
-    getValue () {
-      return typeof this.data === 'object' ? this.data.value : this.data
-    },
-    updateValue () {
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      return (this.value = this.getValue())
     }
   }
 }
