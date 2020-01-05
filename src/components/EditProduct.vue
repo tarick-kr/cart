@@ -90,7 +90,8 @@ export default {
       editedParamValid: [],
       editedParamCount: 0,
       editedQuantity: '',
-      editedQuantityValid: true
+      editedQuantityValid: true,
+      form: {}
     }
   },
   components: {
@@ -116,31 +117,26 @@ export default {
 
   methods: {
     onCancel () {
-      this.editedParams = []
-      this.editedParamValid = []
-      this.editedParamCount = 0
-      this.editedQuantity = ''
-      this.editedQuantityValid = true
       this.dialog = false
     },
     onSave () {
       this.dialog = false
     },
     onChangeParam (index, data) {
-      this.editedParams[index].value = data.value
-      this.editedParamValid[index] = data.valid
-
-      let editedParamCount = 0
-      for (let i = 0; i < this.editedParamValid.length; i++) {
-        if (this.editedParamValid[i]) {
-          editedParamCount++
-        }
-      }
-      this.editedParamCount = editedParamCount
+    //   this.editedParams[index].value = data.value
+    //   this.editedParamValid[index] = data.valid
+    //
+    //   let editedParamCount = 0
+    //   for (let i = 0; i < this.editedParamValid.length; i++) {
+    //     if (this.editedParamValid[i]) {
+    //       editedParamCount++
+    //     }
+    //   }
+    //   this.editedParamCount = editedParamCount
     },
     onChangeQuantity (data) {
-      this.editedQuantity = Number(data.value)
-      this.editedQuantityValid = data.valid
+    //   this.editedQuantity = Number(data.value)
+    //   this.editedQuantityValid = data.valid
     }
   },
   computed: {

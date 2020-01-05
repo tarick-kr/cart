@@ -37,15 +37,10 @@ export default {
     if (typeof this.data === 'object') {
       this.label = this.data.name + ' ' + this.data.sym + ',' + ' ' + this.data.unit
       this.hint = 'от ' + this.data.minimValue + this.data.unit + ' до ' + this.data.maximValue + this.data.unit
-      this.value = this.data.value
     } else {
       this.label = 'Колличество, шт'
       this.hint = 'максимум ' + this.maxQuantity + ' шт'
-      this.value = this.data
     }
-  },
-  updated () {
-    this.value = this.updateValue
   },
   methods: {
     onInput (e) {
@@ -67,8 +62,12 @@ export default {
         return this.patternValidQuantity.test(String(this.data)) && String(this.data) > 0 && String(this.data) <= this.maxQuantity
       }
     },
-    updateValue () {
+    getValue () {
       return typeof this.data === 'object' ? this.data.value : this.data
+    },
+    updateValue () {
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      return (this.value = this.getValue())
     }
   }
 }
