@@ -28,13 +28,12 @@
             <v-row>
               <v-col
                 cols="12" sm="4"
-                v-for="(field, index) in this.editedParams"
-                :key="field.id"
+                v-for="editedProduct in this.editedParams"
+                :key="editedProduct.id"
               >
                 <app-input
-                  :index="index"
-                  :data="field"
-                  @changeInput="onChangeParam(index, $event)"
+                  :product="editedProduct"
+                  @onUpdate="update($event)"
                 />
               </v-col>
             </v-row>
@@ -44,8 +43,8 @@
             <v-row>
               <v-col cols="12" sm="4">
                 <app-input
-                  :data="this.editedQuantity"
-                  @changeInput="onChangeQuantity($event)"
+                  :product="this.editedQuantity"
+                  @onUpdate="update($event)"
                 />
               </v-col>
             </v-row>
@@ -63,7 +62,7 @@
             <v-icon right size="21">close</v-icon>
           </v-btn>
           <v-btn
-            :disabled="!allFieldsComplited"
+
             color="blue darken-1"
             class="white--text"
             small
@@ -102,26 +101,36 @@ export default {
       required: true
     }
   },
-  created () {
-    for (let i = 0; i < this.cartItem.productParams.length; i++) {
-      let itemObj = this.cartItem.productParams[i]
-      let itemObjNew = Object.assign({}, itemObj)
-      this.editedParams.push(itemObjNew)
-    }
-    for (let i = 0; i < this.cartItem.productParams.length; i++) {
-      this.editedParamValid.push(true)
-    }
-    this.editedParamCount = this.editedParamValid.length
+  mounted () {
+    this.initValue()
   },
-
   methods: {
+    initValue () {
+      for (let i = 0; i < this.cartItem.productParams.length; i++) {
+        let itemObj = this.cartItem.productParams[i]
+        let itemObjNew = Object.assign({}, itemObj)
+        this.editedParams.push(itemObjNew)
+      }
+      for (let i = 0; i < this.cartItem.productParams.length; i++) {
+        this.editedParamValid.push(true)
+      }
+      this.editedParamCount = this.editedParamValid.length
+      this.editedQuantity = this.cartItem.quantity
+    },
     onCancel () {
       this.dialog = false
     },
     onSave () {
       this.dialog = false
     },
-    onChangeParam (index, data) {
+    update (payload) {
+      if (typeof payload === 'object') {
+        this.$set(payload.product, payload.prop, payload.newValue)
+      } else {
+        this.editedQuantity = Number(payload)
+      }
+    }
+    // onChangeParam (index, data) {
     //   this.editedParams[index].value = data.value
     //   this.editedParamValid[index] = data.valid
     //
@@ -132,22 +141,22 @@ export default {
     //     }
     //   }
     //   this.editedParamCount = editedParamCount
-    },
-    onChangeQuantity (data) {
+    // },
+    // onChangeQuantity (data) {
     //   this.editedQuantity = Number(data.value)
     //   this.editedQuantityValid = data.valid
-    }
+    // }
   },
   computed: {
-    editedParamComplited () {
-      return this.editedParamCount === this.editedParamValid.length
-    },
-    editedQuantityComplited () {
-      return this.editedQuantityValid
-    },
-    allFieldsComplited () {
-      return this.editedParamComplited && this.editedQuantityComplited
-    }
+    // editedParamComplited () {
+    //   return this.editedParamCount === this.editedParamValid.length
+    // },
+    // editedQuantityComplited () {
+    //   return this.editedQuantityValid
+    // },
+    // allFieldsComplited () {
+    //   return this.editedParamComplited && this.editedQuantityComplited
+    // }
   }
 }
 </script>

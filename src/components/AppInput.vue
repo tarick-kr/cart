@@ -1,12 +1,11 @@
 <template>
   <v-text-field
     :label="this.label"
-    :value="this.value"
     :hint="this.hint"
     persistent-hint
     required
-    @input="onInput($event)"
-    :error="!validValue"
+    :value="typeof this.product === 'object' ? this.product.value : this.product"
+    @input="onChangeValue($event)"
   />
 </template>
 
@@ -16,7 +15,6 @@ export default {
   data () {
     return {
       label: '',
-      value: '',
       hint: '',
       maxQuantity: 100,
       patternValidParam: /^-?\d*\.?\d+$/,
@@ -24,34 +22,34 @@ export default {
     }
   },
   props: {
-    data: {
+    product: {
       type: [Object, Number],
       required: true
-    },
-    index: {
-      type: Number,
-      required: false
     }
   },
-  created () {
-    if (typeof this.data === 'object') {
-      this.label = this.data.name + ' ' + this.data.sym + ',' + ' ' + this.data.unit
-      this.hint = 'от ' + this.data.minimValue + this.data.unit + ' до ' + this.data.maximValue + this.data.unit
-    } else {
-      this.label = 'Колличество, шт'
-      this.hint = 'максимум ' + this.maxQuantity + ' шт'
-    }
+  mounted () {
+    this.initValue()
   },
   methods: {
-    onInput (e) {
-      this.$emit('changeInput', {
-        value: e,
-        valid: (
-          typeof this.data === 'object'
-            ? this.patternValidParam.test(e) && e >= this.data.minimValue && e <= this.data.maximValue
-            : this.patternValidQuantity.test(e) && e > 0 && e <= this.maxQuantity
-        )
-      })
+    initValue () {
+      if (typeof this.product === 'object') {
+        this.label = this.product.name + ' ' + this.product.sym + ',' + ' ' + this.product.unit
+        this.hint = 'от ' + this.product.minimValue + this.product.unit + ' до ' + this.product.maximValue + this.product.unit
+      } else {
+        this.label = 'Колличество, шт'
+        this.hint = 'максимум ' + this.maxQuantity + ' шт'
+      }
+    },
+    onChangeValue (e) {
+      if (typeof this.product === 'object') {
+        this.$emit('onUpdate', {
+          product: this.product,
+          prop: 'value',
+          newValue: e
+        })
+      } else {
+        this.$emit('onUpdate', e)
+      }
     }
   },
   computed: {
