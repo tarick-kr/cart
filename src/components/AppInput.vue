@@ -4,8 +4,9 @@
     :hint="this.hint"
     persistent-hint
     required
-    :value="typeof this.product === 'object' ? this.product.value : this.product"
+    :value="typeof this.data === 'object' ? this.data.value : this.data"
     @input="onChangeValue($event)"
+    :error="!validValue"
   />
 </template>
 
@@ -22,9 +23,13 @@ export default {
     }
   },
   props: {
-    product: {
+    data: {
       type: [Object, Number],
       required: true
+    },
+    index: {
+      type: [Number],
+      required: false
     }
   },
   mounted () {
@@ -32,23 +37,28 @@ export default {
   },
   methods: {
     initValue () {
-      if (typeof this.product === 'object') {
-        this.label = this.product.name + ' ' + this.product.sym + ',' + ' ' + this.product.unit
-        this.hint = 'от ' + this.product.minimValue + this.product.unit + ' до ' + this.product.maximValue + this.product.unit
+      if (typeof this.data === 'object') {
+        this.label = this.data.name + ' ' + this.data.sym + ',' + ' ' + this.data.unit
+        this.hint = 'от ' + this.data.minimValue + this.data.unit + ' до ' + this.data.maximValue + this.data.unit
       } else {
         this.label = 'Колличество, шт'
         this.hint = 'максимум ' + this.maxQuantity + ' шт'
       }
     },
     onChangeValue (e) {
-      if (typeof this.product === 'object') {
+      if (typeof this.data === 'object') {
         this.$emit('onUpdate', {
-          product: this.product,
+          index: this.index,
+          product: this.data,
           prop: 'value',
-          newValue: e
+          newValue: Number(e),
+          valid: this.patternValidParam.test(e) && e >= this.data.minimValue && e <= this.data.maximValue
         })
       } else {
-        this.$emit('onUpdate', e)
+        this.$emit('onUpdate', {
+          newValue: e,
+          valid: this.patternValidQuantity.test(String(e)) && String(e) > 0 && String(e) <= this.maxQuantity
+        })
       }
     }
   },
@@ -64,6 +74,6 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 
 </style>

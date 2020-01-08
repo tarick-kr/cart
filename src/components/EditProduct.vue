@@ -28,11 +28,12 @@
             <v-row>
               <v-col
                 cols="12" sm="4"
-                v-for="editedProduct in this.editedParams"
+                v-for="(editedProduct, index) in this.editedParams"
                 :key="editedProduct.id"
               >
                 <app-input
-                  :product="editedProduct"
+                  :index="index"
+                  :data="editedProduct"
                   @onUpdate="update($event)"
                 />
               </v-col>
@@ -43,7 +44,7 @@
             <v-row>
               <v-col cols="12" sm="4">
                 <app-input
-                  :product="this.editedQuantity"
+                  :data="this.editedQuantity"
                   @onUpdate="update($event)"
                 />
               </v-col>
@@ -67,6 +68,7 @@
             class="white--text"
             small
             @click="onSave"
+            :disabled="!allFieldsComplited"
           >
             Сохранить
             <v-icon right size="19">save</v-icon>
@@ -104,6 +106,24 @@ export default {
   mounted () {
     this.initValue()
   },
+  watch: {
+    'cartItem.quantity': {
+      handler (val) {
+        this.editedQuantity = val
+      }
+    },
+    'cartItem.productParams': {
+      handler () {
+        this.editedParams = []
+        for (let i = 0; i < this.cartItem.productParams.length; i++) {
+          let itemObj = this.cartItem.productParams[i]
+          let itemObjNew = Object.assign({}, itemObj)
+          this.editedParams.push(itemObjNew)
+        }
+      },
+      deep: true
+    }
+  },
   methods: {
     initValue () {
       for (let i = 0; i < this.cartItem.productParams.length; i++) {
@@ -118,45 +138,48 @@ export default {
       this.editedQuantity = this.cartItem.quantity
     },
     onCancel () {
+      this.editedParams = []
+      this.initValue()
       this.dialog = false
     },
     onSave () {
+      this.$store.dispatch('SAVE_CHANGES', {
+        id: this.cartItem.id,
+        editedQuantity: this.editedQuantity,
+        editedParams: this.editedParams
+      })
+      this.editedParams = []
+      this.initValue()
       this.dialog = false
     },
     update (payload) {
-      if (typeof payload === 'object') {
+      if (Object.keys(payload).length > 2) {
         this.$set(payload.product, payload.prop, payload.newValue)
+        this.editedParamValid[payload.index] = payload.valid
+
+        let editedParamCount = 0
+        for (let i = 0; i < this.editedParamValid.length; i++) {
+          if (this.editedParamValid[i]) {
+            editedParamCount++
+          }
+        }
+        this.editedParamCount = editedParamCount
       } else {
-        this.editedQuantity = Number(payload)
+        this.editedQuantity = Number(payload.newValue)
+        this.editedQuantityValid = payload.valid
       }
     }
-    // onChangeParam (index, data) {
-    //   this.editedParams[index].value = data.value
-    //   this.editedParamValid[index] = data.valid
-    //
-    //   let editedParamCount = 0
-    //   for (let i = 0; i < this.editedParamValid.length; i++) {
-    //     if (this.editedParamValid[i]) {
-    //       editedParamCount++
-    //     }
-    //   }
-    //   this.editedParamCount = editedParamCount
-    // },
-    // onChangeQuantity (data) {
-    //   this.editedQuantity = Number(data.value)
-    //   this.editedQuantityValid = data.valid
-    // }
   },
   computed: {
-    // editedParamComplited () {
-    //   return this.editedParamCount === this.editedParamValid.length
-    // },
-    // editedQuantityComplited () {
-    //   return this.editedQuantityValid
-    // },
-    // allFieldsComplited () {
-    //   return this.editedParamComplited && this.editedQuantityComplited
-    // }
+    editedParamComplited () {
+      return this.editedParamCount === this.editedParamValid.length
+    },
+    editedQuantityComplited () {
+      return this.editedQuantityValid
+    },
+    allFieldsComplited () {
+      return this.editedParamComplited && this.editedQuantityComplited
+    }
   }
 }
 </script>

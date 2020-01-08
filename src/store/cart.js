@@ -110,6 +110,13 @@ export default {
     REMOVE_PRODUCT (state, id) {
       let index = state.cartItemList.findIndex(product => product.id === id)
       state.cartItemList.splice(index, 1)
+    },
+    SAVE_CHANGES (state, { id, editedQuantity, editedParams }) {
+      const updateProduct = state.cartItemList.find(product => {
+        return product.id === id
+      })
+      updateProduct.quantity = editedQuantity
+      updateProduct.productParams = editedParams
     }
   },
   actions: {
@@ -121,6 +128,9 @@ export default {
     },
     REMOVE_PRODUCT ({ commit }, id) {
       commit('REMOVE_PRODUCT', id)
+    },
+    SAVE_CHANGES ({ commit }, payload) {
+      commit('SAVE_CHANGES', payload)
     }
   },
   getters: {

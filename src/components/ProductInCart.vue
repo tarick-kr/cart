@@ -83,7 +83,7 @@ export default {
       quantity: ''
     }
   },
-  created () {
+  mounted () {
     for (let i = 0; i < this.cartItem.productParams.length; i++) {
       this.productParams.push({
         name: this.cartItem.productParams[i].name,
@@ -95,16 +95,35 @@ export default {
     for (let i = 0; i < this.productParams.length; i++) {
       this.descriptionParam.push(this.productParams[i].name + ' ' + this.productParams[i].sym + ' - ' + this.productParams[i].value + this.productParams[i].unit)
     }
-
     let price = this.cartItem.price
     this.price = price.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1 ')
-
     this.image = this.cartItem.imageProduct
-
     this.quantity = this.cartItem.quantity
   },
-  beforeUpdate () {
-    this.quantity = this.cartItem.quantity
+  watch: {
+    'cartItem.quantity': {
+      handler (val) {
+        this.quantity = val
+      }
+    },
+    'cartItem.productParams': {
+      handler () {
+        this.productParams = []
+        for (let i = 0; i < this.cartItem.productParams.length; i++) {
+          this.productParams.push({
+            name: this.cartItem.productParams[i].name,
+            sym: this.cartItem.productParams[i].sym,
+            unit: this.cartItem.productParams[i].unit,
+            value: this.cartItem.productParams[i].value
+          })
+        }
+        this.descriptionParam = []
+        for (let i = 0; i < this.productParams.length; i++) {
+          this.descriptionParam.push(this.productParams[i].name + ' ' + this.productParams[i].sym + ' - ' + this.productParams[i].value + this.productParams[i].unit)
+        }
+      },
+      deep: true
+    }
   },
   computed: {
     description () {
