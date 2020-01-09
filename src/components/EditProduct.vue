@@ -9,7 +9,7 @@
       </template>
       <v-card>
         <v-card-title class="text-center px-1 px-sm-2 px-md-4">
-          <span class="headline mx-auto">{{ cartItem.titleProduct }}</span>
+          <span class="headline font-weight-bold mx-auto">{{ cartItem.titleProduct }}</span>
         </v-card-title>
         <div class="text-center px-1 px-sm-2 px-md-4">
           <v-divider class="mb-4 divider-width-align"/>
@@ -34,7 +34,21 @@
                 <app-input
                   :index="index"
                   :data="editedProduct"
-                  @onUpdate="update($event)"
+                  @onUpdate="updateParam($event)"
+                />
+              </v-col>
+            </v-row>
+          </v-container>
+          <v-divider class="divider-width-align"/>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="6" md="4" v-for="(field, index) in this.editedSelectParams" :key="index">
+                <v-select
+                  :label="field.sym ? field.name + ' ' + field.sym + ', ' + field.unit : field.name"
+                  :value="field.value"
+                  required
+                  :items="changeSelectType[index].arraySelectItems"
+                  @input="updateSelect(index, $event)"
                 />
               </v-col>
             </v-row>
@@ -45,7 +59,7 @@
               <v-col cols="12" sm="4">
                 <app-input
                   :data="this.editedQuantity"
-                  @onUpdate="update($event)"
+                  @onUpdate="updateParam($event)"
                 />
               </v-col>
             </v-row>
@@ -91,7 +105,8 @@ export default {
       editedParamValid: [],
       editedParamCount: 0,
       editedQuantity: '',
-      editedQuantityValid: true
+      editedQuantityValid: true,
+      editedSelectParams: []
     }
   },
   components: {
@@ -126,33 +141,53 @@ export default {
   },
   methods: {
     initValue () {
+      // создаётся массив editedParams, который является клоном массива
+      // cartItem.productParams полученного в пропсах
       for (let i = 0; i < this.cartItem.productParams.length; i++) {
         let itemObj = this.cartItem.productParams[i]
         let itemObjNew = Object.assign({}, itemObj)
         this.editedParams.push(itemObjNew)
       }
+      // создаётся массив editedParamValid со значениями true (т.к. изначально все значения валидны)
       for (let i = 0; i < this.cartItem.productParams.length; i++) {
         this.editedParamValid.push(true)
       }
+      // инициализируется счётчик editedParamCount параметров продукта (инпутов)
+      // со значением равным длине массива editedParamValid
       this.editedParamCount = this.editedParamValid.length
+      // инициализируется кол-во товара
       this.editedQuantity = this.cartItem.quantity
+      // создаётся массив editedSelectParams, который является клоном массива
+      // cartItem.productParams полученного в пропсах
+      if (this.changeSelectType !== '') {
+        for (let i = 0; i < this.cartItem.productSelectParams.length; i++) {
+          let itemObj = this.cartItem.productSelectParams[i]
+          let itemObjNew = Object.assign({}, itemObj)
+          this.editedSelectParams.push(itemObjNew)
+        }
+      } else {
+        this.editedSelectParams = []
+      }
     },
     onCancel () {
       this.editedParams = []
+      this.editedSelectParams = []
       this.initValue()
       this.dialog = false
     },
     onSave () {
       this.$store.dispatch('SAVE_CHANGES', {
         id: this.cartItem.id,
+        editedParams: this.editedParams,
         editedQuantity: this.editedQuantity,
-        editedParams: this.editedParams
+        editedSelectParams: this.editedSelectParams
       })
       this.editedParams = []
+      this.editedSelectParams = []
       this.initValue()
       this.dialog = false
     },
-    update (payload) {
+    updateParam (payload) {
       if (Object.keys(payload).length > 2) {
         this.$set(payload.product, payload.prop, payload.newValue)
         this.editedParamValid[payload.index] = payload.valid
@@ -168,9 +203,25 @@ export default {
         this.editedQuantity = Number(payload.newValue)
         this.editedQuantityValid = payload.valid
       }
+    },
+    updateSelect (index, newValue) {
+      for (let i = 0; i < this.editedSelectParams.length; i++) {
+        if (i === index) {
+          this.editedSelectParams[i].value = newValue
+        }
+      }
     }
   },
   computed: {
+    changeSelectType () {
+      if (this.cartItem.selectType === 1) {
+        return this.$store.getters.getSelectFieldsType1
+      } else if (this.cartItem.selectType === 2) {
+        return this.$store.getters.getSelectFieldsType2
+      } else {
+        return ''
+      }
+    },
     editedParamComplited () {
       return this.editedParamCount === this.editedParamValid.length
     },

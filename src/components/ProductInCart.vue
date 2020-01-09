@@ -9,7 +9,9 @@
     <v-list-item three-line :to="'/cart/detail-product/' + cartItem.id">
       <v-list-item-content>
         <v-list-item-title class="title mb-1">{{ cartItem.titleProduct }}</v-list-item-title>
-        <v-list-item-subtitle>{{ description }}</v-list-item-subtitle>
+        <v-list-item-subtitle>{{ descriptionProductParam }}</v-list-item-subtitle>
+        <v-divider v-show="!emptySelectParam"/>
+        <v-list-item-subtitle>{{ descriptionProductSelectParam }}</v-list-item-subtitle>
       </v-list-item-content>
       <v-list-item-avatar tile size="120" v-if="$vuetify.breakpoint.smAndUp">
         <v-img :src="image"/>
@@ -77,7 +79,9 @@ export default {
   data () {
     return {
       productParams: [],
+      productSelectParams: [],
       descriptionParam: [],
+      descriptionSelectParams: [],
       price: '',
       image: '',
       quantity: ''
@@ -95,6 +99,23 @@ export default {
     for (let i = 0; i < this.productParams.length; i++) {
       this.descriptionParam.push(this.productParams[i].name + ' ' + this.productParams[i].sym + ' - ' + this.productParams[i].value + this.productParams[i].unit)
     }
+
+    for (let i = 0; i < this.cartItem.productSelectParams.length; i++) {
+      this.productSelectParams.push({
+        name: this.cartItem.productSelectParams[i].name,
+        sym: this.cartItem.productSelectParams[i].sym,
+        unit: this.cartItem.productSelectParams[i].unit,
+        value: this.cartItem.productSelectParams[i].value
+      })
+    }
+    for (let i = 0; i < this.productSelectParams.length; i++) {
+      if (this.cartItem.productSelectParams[i].sym) {
+        this.descriptionSelectParams.push(this.productSelectParams[i].name + ' ' + this.productSelectParams[i].sym + ' - ' + this.productSelectParams[i].value + this.productSelectParams[i].unit)
+      } else {
+        this.descriptionSelectParams.push(this.productSelectParams[i].name + ' - ' + this.productSelectParams[i].value)
+      }
+    }
+
     let price = this.cartItem.price
     this.price = price.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1 ')
     this.image = this.cartItem.imageProduct
@@ -123,11 +144,39 @@ export default {
         }
       },
       deep: true
+    },
+    'cartItem.productSelectParams': {
+      handler () {
+        this.productSelectParams = []
+        for (let i = 0; i < this.cartItem.productSelectParams.length; i++) {
+          this.productSelectParams.push({
+            name: this.cartItem.productSelectParams[i].name,
+            sym: this.cartItem.productSelectParams[i].sym,
+            unit: this.cartItem.productSelectParams[i].unit,
+            value: this.cartItem.productSelectParams[i].value
+          })
+        }
+        this.descriptionSelectParams = []
+        for (let i = 0; i < this.productSelectParams.length; i++) {
+          if (this.cartItem.productSelectParams[i].sym) {
+            this.descriptionSelectParams.push(this.productSelectParams[i].name + ' ' + this.productSelectParams[i].sym + ' - ' + this.productSelectParams[i].value + this.productSelectParams[i].unit)
+          } else {
+            this.descriptionSelectParams.push(this.productSelectParams[i].name + ' - ' + this.productSelectParams[i].value)
+          }
+        }
+      },
+      deep: true
     }
   },
   computed: {
-    description () {
+    emptySelectParam () {
+      return this.cartItem.productSelectParams.length === 0
+    },
+    descriptionProductParam () {
       return this.descriptionParam.join(' / ')
+    },
+    descriptionProductSelectParam () {
+      return this.descriptionSelectParams.join(' / ')
     },
     disabledBtn () {
       return !this.cartItem.quantity

@@ -11,6 +11,7 @@ export default {
         imageProduct: Img1,
         price: 50,
         quantity: 5,
+        selectType: 2,
         productParams: [
           {
             id: 'param1-prod1',
@@ -21,6 +22,25 @@ export default {
             maximValue: 1000,
             value: 300
           }
+        ],
+        productSelectParams: [
+          {
+            id: 'field1-type2',
+            name: 'Толщина металла',
+            sym: 't',
+            unit: 'мм',
+            value: '0.7'
+          },
+          {
+            id: 'field2-type2',
+            name: 'Тип металла',
+            value: 'Оц. сталь'
+          },
+          {
+            id: 'field3-type2',
+            name: 'Тип соединения',
+            value: 'Нет'
+          }
         ]
       },
       {
@@ -29,6 +49,7 @@ export default {
         imageProduct: Img2,
         price: 15,
         quantity: 9,
+        selectType: 3,
         productParams: [
           {
             id: 'param1-prod2',
@@ -48,7 +69,8 @@ export default {
             maximValue: 2000,
             value: 1000
           }
-        ]
+        ],
+        productSelectParams: []
       },
       {
         id: 'prod3',
@@ -56,6 +78,7 @@ export default {
         imageProduct: Img3,
         price: 50,
         quantity: 3,
+        selectType: 1,
         productParams: [
           {
             id: 'param1-prod3',
@@ -84,6 +107,25 @@ export default {
             maximValue: 2000,
             value: 1050
           }
+        ],
+        productSelectParams: [
+          {
+            id: 'field1-type1',
+            name: 'Толщина металла',
+            sym: 't',
+            unit: 'мм',
+            value: '0.5'
+          },
+          {
+            id: 'field2-type1',
+            name: 'Тип металла',
+            value: 'Оц. сталь'
+          },
+          {
+            id: 'field3-type1',
+            name: 'Тип соединения',
+            value: 'Фланец №20'
+          }
         ]
       }
     ]
@@ -111,12 +153,13 @@ export default {
       let index = state.cartItemList.findIndex(product => product.id === id)
       state.cartItemList.splice(index, 1)
     },
-    SAVE_CHANGES (state, { id, editedQuantity, editedParams }) {
+    SAVE_CHANGES (state, { id, editedParams, editedQuantity, editedSelectParams }) {
       const updateProduct = state.cartItemList.find(product => {
         return product.id === id
       })
       updateProduct.quantity = editedQuantity
       updateProduct.productParams = editedParams
+      updateProduct.productSelectParams = editedSelectParams
     }
   },
   actions: {
